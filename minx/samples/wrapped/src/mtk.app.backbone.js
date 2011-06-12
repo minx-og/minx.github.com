@@ -106,14 +106,14 @@ Mtk.test_accounts = new Mtk.MenuList([
 // some static test data to bind to the backbone view
 
 Mtk.test_accounts = new Backbone.Collection([
-          {name: "Tim", age: 5},
-          {name: "Ida", age: 26},
-          {name: "Rob", age: 55},
-          {name: "Tim", age: 5},
-          {name: "Ida", age: 26},
-          {name: "Rob", age: 55},
-          {name: "Tim", age: 5},
-          {name: "Ida", age: 26},
+          {name: "Backbone", age: 5},
+          {name: "Demo", age: 26},
+          {name: "---", age: 55},
+          {name: "this", age: 5},
+          {name: "list", age: 26},
+          {name: "is", age: 55},
+          {name: "a", age: 5},
+          {name: "model", age: 26},
           {name: "Rob", age: 55},
           {name: "Tim", age: 5},
           {name: "Ida", age: 26},
