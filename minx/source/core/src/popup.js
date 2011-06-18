@@ -22,14 +22,13 @@ Minx.Popup = my.Class(Minx.PinnedPanel, {
         Minx.Popup.Super.call(this, parent, id);
 
         // add custom class
-        this.addClass('pop-up');
         this.addClass('anim-fade-only');
     },
 
     _onCreation: function() {
         //dont call base
         // default size
-        this.setAnimated(false);
+        this.setAnimate(0);
         this.hide(true);            // hide instantly
         
         this.setSize(300, 200);
@@ -72,6 +71,10 @@ Minx.Popup = my.Class(Minx.PinnedPanel, {
         Minx.PinnedPanel.Super.prototype.setPos.call(this, (dw - d.w) / 2, (dh - d.h) / 2);
     },
 
+    getClassName: function() {
+        return 'pop-up';
+    },
+    
     // should be private - return my element type
     getMyElement: function() {
         return 'div';

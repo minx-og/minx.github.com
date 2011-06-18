@@ -30,7 +30,6 @@ Minx.Button = my.Class(Minx.PinnedPanel, {
         this.setSize(70, 30);
         this.setPos(10, 10);
         
-        this.addClass('button');
         this.addClass('button-up');
 
         // register my events in Minx.eq wrapper 
@@ -47,7 +46,7 @@ Minx.Button = my.Class(Minx.PinnedPanel, {
     // last thing called in the construction - so overrides stuff
     _onCreation: function() {
         // buttons just stay within thier parents
-        this.setAnimated(false);
+        this.setAnimate(false);
     },
 
     // special one for buttons
@@ -171,6 +170,10 @@ Minx.Button = my.Class(Minx.PinnedPanel, {
         }
     },
 
+    getClassName: function() {
+        return 'button';
+    },
+    
     getMyElement: function() {
         return 'div';
     },
