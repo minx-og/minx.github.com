@@ -12,17 +12,10 @@ Minx.TitlePanel = my.Class(Minx.PinnedPanel, {
         // call my base constructor
         Minx.TitlePanel.Super.call(this, parent, id);
 
-        this.addClass('test-panel')
-
-/*
-
 
         // add a title-bar
         this._titleBar = Minx.pm.add(this,'tool-bar');
         this._titleBar.dock('t');
-
-        this._titleBar.hide();
-        
 
 
         // add a plain pinned panel
@@ -42,9 +35,6 @@ Minx.TitlePanel = my.Class(Minx.PinnedPanel, {
         this._mainPanel.setParentPin('l', 0);
         this._mainPanel.setParentPin('r', 0);
         this._mainPanel.setParentPin('b', 0);
-
-        this._mainPanel.addClass('test-panel2')
-*/
 
     },
 
