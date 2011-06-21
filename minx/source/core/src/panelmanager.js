@@ -13,7 +13,9 @@ Minx.Event = function(panel, callback) {
         }
 }
 
-// the event 'queue'
+// the event 'queue' - not even a queue but could be if we wanted to manage all events
+// for now this creates a simple wrapper function so that when the handler is called on the panel - 'this' is in scope
+// it also adds the event to the list of events for the individual panel - so each panel could manage its own event list
 Minx.Events = function(){
         // any global list?
 
@@ -23,11 +25,10 @@ Minx.Events = function(){
                 callback = 'eventFired';
             }
             
+            // wrapper to call the event on the panel
             var mEv = new Minx.Event(panel, callback);
 
             // now add it back to the object that subscribed
-
-
             if(node == null) {
                 node = panel.getNode();
             }
@@ -62,12 +63,102 @@ Minx.PanelManager = function() {
     var _root_node;             // our root node - document.body by default
     var _types = {};
     
+    this.dims = {};              // public object wit device dimensions
+    
+    this.calcDims = function() {
+        
+        var nw = document.documentElement.clientWidth;
+        var nh = document.documentElement.clientHeight
+
+        // height is sorted automatically
+        this.dims.h = nh;
+        this.dims.w = nw;
+
+        this.dims.or = 'l';
+        if(nw < nh) {
+            this.dims.or = 'p';
+        }
+
+        // need to detect real evice width because the client width has been fixed to allow smooth repositioning
+        // if it is set to auto size then the snap to 0,0 is ugly
+        if(this.dims.ipad) {
+            
+                if(nh > 768) {  // must be portrait
+                    this.dims.or = 'p';
+                    // TODO - get te ipad2 dimensions!!
+                    this.dims.w = 768;
+                }
+                else {
+                    this.dims.or = 'l';
+                }
+                
+        }
+
+        // portrait - 1024, 1155
+        // landscape - 1024, 610
+
+    };
+
+    this.calcDevice = function() {
+        // check if we are in stand alone mode
+        if( ("standalone" in window.navigator) && window.navigator.standalone) {
+            this.dims.sa = true;
+        }
+        else {
+            this.dims.sa = false;
+        }
+
+        this.dims.iphone       = this.agent().iphone;
+        this.dims.ipad         = this.agent().ipad;
+        this.dims.ipod         = this.agent().ipod;
+        this.dims.android      = this.agent().android; 
+        this.dims.webos        = this.agent().webos;
+        this.dims.blackberry   = this.agent().blackberry; 
+
+        this.ver = 0;
+        
+        var nw = document.documentElement.clientWidth;
+        var nh = document.documentElement.clientHeight
+
+        // landscape width
+        this.dims.lw = nw;
+
+        // 'device-height' in the meta tags will fix this 
+        if(this.dims.ipad) {
+            if(nw == 1024) { // ipad 1
+                this.ver = 1;
+                this.dims.pw = 768; // portrait width
+            }
+            if(nw > 1024) { // ipad 2
+                this.ver = 2;
+            }
+        }
+        if(this.dims.iphone) {
+            if(nw == 320) { // ipone 3
+                this.ver = 3;
+                this.dims.pw = 320; // portrait width
+            }
+            if(nw > 1024) { // iphone 4 retina 
+                this.ver = 4;
+            }
+        }
+
+        this.calcDims();
+
+    };
+
+
     // set up the root node and optionally add a single panel that resizes with the browser resizing
     this.init = function(auto) {
+
+        this.calcDevice();
+
         //and our root panel representation of document.body
         _root_node = new Minx.Panel(null, "root");
 
         var main = null;
+
+        var me = this;
 
         // auto generate a main and set it to rezize on window resize
         if(auto) {
@@ -75,28 +166,26 @@ Minx.PanelManager = function() {
             main.addClass('main-panel');
             main.setAnimate(false);                                     // TODO - try it both ways
 
-            var w = document.documentElement.clientWidth;
-            var h = document.documentElement.clientHeight
-            main.setSize(w, h);
-            
+            main.getNode().innerHTML = '<div id="back-top"></div>';
+
+            main.setSize(this.dims.w, this.dims.h);            
 
             var changing = false;
             function oChange(){
 
                 if(!changing) {
                     changing = true;
-                    var nw = document.documentElement.clientWidth;
-                    var nh = document.documentElement.clientHeight
+                    me.calcDims();
 
-                    console.log("w="+nw + " h="+ nh);
-                    main.setSize(nw, nh);
+                    console.log("w="+me.dims.w + " h="+ me.dims.h);
+                    main.setSize(me.dims.w, me.dims.h);
                     
                     // this constructs main panel geometry and updates kids - redraws all kidies if thier geometry has changed
                     // but doesnt redraw the main panel
-                    //main.layout();
-                    //main.drawKids();
+                    main.layout();
+                    main.drawKids();
 
-                    main.render(); 
+                    //main.render();            // rendering the main section can cause flicker
                     changing = false;
                 }
             }
@@ -202,6 +291,7 @@ Minx.PanelManager = function() {
 
 
     // remove a panel and all children from our dom and managed lists
+    // equivalent to delete 
     this.remove = function(panel) {
         // if pnel is an id - find it in our managed list of _panels
         if(typeof panel == 'string') {
@@ -216,7 +306,7 @@ Minx.PanelManager = function() {
             
             // then remove from the dom .3 seconds later
             setTimeout(function() {
-                var list = panel.removeMe();
+                var list = panel._removeMe();
 
                 // delete al the removed panels from our managed list
                 for(key in list) {
